@@ -1,0 +1,45 @@
+# Shared Infrastructure
+AccountSns:
+  Type: AWS::SNS::Topic
+  Properties:
+    TopicName: ${self:provider.stage}-fbank-account
+    DisplayName: 'Account Events'
+    FifoTopic: false
+EntrySns:
+  Type: AWS::SNS::Topic
+  Properties:
+    TopicName: ${self:provider.stage}-fbank-entry
+    DisplayName: 'Entry Events'
+    FifoTopic: false
+
+# Account Service Resources
+AccountTable:
+  Type: AWS::DynamoDB::Table
+  Properties:
+    TableName: ${self:provider.stage}-fbank-accounts
+    ProvisionedThroughput:
+      ReadCapacityUnits: 1
+      WriteCapacityUnits: 1
+    AttributeDefinitions:
+      - AttributeName: pk
+        AttributeType: S
+      - AttributeName: sk
+        AttributeType: S
+    KeySchema:
+      - AttributeName: pk
+        KeyType: HASH
+      - AttributeName: sk
+        KeyType: RANGE
+
+# Credit Analysis Service Resources
+CreditAnalyzerServiceQueue:
+  Type: AWS::SQS::Queue
+  Properties:
+    QueueName: ${self:provider.stage}-credit-analyzer-queue
+SNSSubForCreditAnalysisRequestQueue:
+  Type: AWS::SNS::Subscription
+  Properties:
+      TopicArn: { "Fn::Join" : ["", ["arn:aws:sns:${self:provider.region}:", { "Ref" : "AWS::AccountId" }, ":${self:resources.Resources.AccountSns.Properties.TopicName}" ] ] }
+      Protocol: sqs
+      Endpoint:
+        Fn::GetAtt: [CreditAnalyzerServiceQueue, Arn]

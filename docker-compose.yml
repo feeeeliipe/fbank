@@ -1,0 +1,22 @@
+version: "3.3"
+
+services:
+  localstack:
+    container_name: localstack-fbank
+    image: localstack/localstack-full
+    network_mode: bridge
+    ports:
+      - "443:443"
+      - "4566:4566"
+      - "8080:8080"
+      - "4597:4597"
+    environment:
+      - LAMBDA_DOCKER_NETWORK="host"
+      - DEBUG=1
+      - AWS_DEFAULT_REGION=us-east-1
+      - DEFAULT_REGION=us-east-1
+      - EDGE_PORT=4566
+      - SERVICES=route53,s3,iam,lambda,apigateway,sns,sqs,sts,cloudwatch,cloudformation,dynamodb
+    volumes:
+      - "${TEMPDIR:-/tmp/localstack}:/temp/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
