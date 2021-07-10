@@ -1,4 +1,4 @@
-import { DynamoConnector } from "../database/DynamoConnector";
+import { DynamoConnector } from "../../../../lib/DynamoConnector";
 import { Account } from "../entities/Account";
 
 

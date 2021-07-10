@@ -64,7 +64,7 @@ functions:
           path: accounts/{id}
   # Credit Analyzer Service Functions
   saveAccountData:
-    handler: services/credit-analyzer-service/events/SaveAccountDataHandler.handler
+    handler: services/credit-analyzer-service/src/events/SaveAccountDataHandler.handler
     events:
       - sqs:
           batchSize: 1
@@ -74,7 +74,3 @@ functions:
 resources:
   Resources:
     ${file(./serverless.resources.yml)}
-    
-    
-    
-    
