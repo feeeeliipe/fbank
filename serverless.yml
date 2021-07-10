@@ -69,7 +69,14 @@ functions:
       - sqs:
           batchSize: 1
           arn:
-            Fn::GetAtt: [CreditAnalyzerServiceQueue, Arn]
+            Fn::GetAtt: [CreditAnalyzerServiceAccountsQueue, Arn]
+  updateCustomerCredit:
+    handler: services/credit-analyzer-service/src/events/UpdateCustomerCreditHandler.handler
+    events:
+      - sqs:
+          batchSize: 1
+          arn:
+            Fn::GetAtt: [CreditAnalyzerServiceUpdateCreditRequestsQueue, Arn]
 
 resources:
   Resources:

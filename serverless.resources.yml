@@ -49,14 +49,34 @@ CreditAnalyzerTable:
         KeyType: HASH
       - AttributeName: sk
         KeyType: RANGE
-CreditAnalyzerServiceQueue:
+CreditAnalyzerServiceAccountsQueue:
   Type: AWS::SQS::Queue
   Properties:
-    QueueName: ${self:provider.stage}-credit-analyzer-queue
-SNSSubForCreditAnalysisRequestQueue:
+    QueueName: ${self:provider.stage}-credit-analyzer-accounts
+SNSSubForCreditAnalyzerServiceAccountDataQueue:
   Type: AWS::SNS::Subscription
   Properties:
       TopicArn: { "Fn::Join" : ["", ["arn:aws:sns:${self:provider.region}:", { "Ref" : "AWS::AccountId" }, ":${self:resources.Resources.AccountSns.Properties.TopicName}" ] ] }
       Protocol: sqs
       Endpoint:
-        Fn::GetAtt: [CreditAnalyzerServiceQueue, Arn]
+        Fn::GetAtt: [CreditAnalyzerServiceAccountsQueue, Arn]
+      FilterPolicy:
+        eventName:
+          - account.created
+          - account.updated
+CreditAnalyzerServiceUpdateCreditRequestsQueue:
+  Type: AWS::SQS::Queue
+  Properties:
+    QueueName: ${self:provider.stage}-credit-analyzer-update-credit-requests
+SNSSubForCreditAnalyzerServiceUpdateCreditRequestsQueue:
+  Type: AWS::SNS::Subscription
+  Properties:
+      TopicArn: { "Fn::Join" : ["", ["arn:aws:sns:${self:provider.region}:", { "Ref" : "AWS::AccountId" }, ":${self:resources.Resources.AccountSns.Properties.TopicName}" ] ] }
+      Protocol: sqs
+      Endpoint:
+        Fn::GetAtt: [CreditAnalyzerServiceUpdateCreditRequestsQueue, Arn]
+      FilterPolicy:
+        eventName:
+          - account.created
+          - account.updated
+

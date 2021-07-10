@@ -19,7 +19,7 @@ class SaveAccountDataHandler {
                 const accountData = messages[0];
                 this.logger.info('Account data received', { message: accountData });
                 await this.saveAccountData(accountData);
-            }    
+            }
         } catch (error) {
             this.logger.error('Error saving account data', {
                 eventName: 'ErrorSavingAccountData',
