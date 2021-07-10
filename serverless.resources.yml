@@ -32,6 +32,23 @@ AccountTable:
         KeyType: RANGE
 
 # Credit Analysis Service Resources
+CreditAnalyzerTable:
+  Type: AWS::DynamoDB::Table
+  Properties:
+    TableName: ${self:provider.stage}-fbank-credit-analyzer
+    ProvisionedThroughput:
+      ReadCapacityUnits: 1
+      WriteCapacityUnits: 1
+    AttributeDefinitions:
+      - AttributeName: pk
+        AttributeType: S
+      - AttributeName: sk
+        AttributeType: S
+    KeySchema:
+      - AttributeName: pk
+        KeyType: HASH
+      - AttributeName: sk
+        KeyType: RANGE
 CreditAnalyzerServiceQueue:
   Type: AWS::SQS::Queue
   Properties:
