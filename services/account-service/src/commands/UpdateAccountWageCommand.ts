@@ -20,11 +20,11 @@ export class UpdateAccountWageCommand {
 
     async execute(params: UpdateAccountWageCommandParams) {
         await this.accountRepo.update(params);
-        const event: EventDriveModel.UpdatedAccountWage = {
+        const event: EventDriveModel.AccountUpdatedWage = {
             id: params.id,
             customerWage: params.customerWage
         }
-        await this.snsPublisher.publish(`${process.env.ACCOUNT_SNS}`, EventDriveModel.AccountEvents.ACCOUNT_UPDATED, event);
+        await this.snsPublisher.publish(`${process.env.ACCOUNT_SNS}`, EventDriveModel.AccountEvents.ACCOUNT_UPDATED_V1, event);
         const account = await this.accountRepo.getAccount(params.id);
         return { 
             id: account?.id,

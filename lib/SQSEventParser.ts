@@ -5,18 +5,18 @@ export class SQSEventParser {
 
     private static logger = new Logger('SQSEventParser');
 
-    static parse<T>(event: SQSEvent): T[] {
+    static parse<T>(event: SQSEvent): { eventName: string, event: T }[] {
         try {
             if (!event.Records.length) {
                 this.logger.info('Empty event. Bypassing...');
             }
-            const messages: T[] = [];
+            const messages: { eventName: string, event:T }[] = [];
             event.Records.forEach(record => {
                 const body = JSON.parse(record.body);
-                const message = body.Message ? JSON.parse(body.Message) : body;
-                messages.push(message);
+                const content = body.Message ? JSON.parse(body.Message) : body;
+                messages.push({ eventName: body.MessageAttributes.eventName.Value || 'EventNameNotFound', event: content });
             });
-            return messages;    
+            return messages;
         } catch (error) {
             this.logger.error('Error parsing SQS event', { 
                 eventName: 'ErrorParsingSqsEvent', 

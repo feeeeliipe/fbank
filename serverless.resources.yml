@@ -62,21 +62,22 @@ SNSSubForCreditAnalyzerServiceAccountDataQueue:
         Fn::GetAtt: [CreditAnalyzerServiceAccountsQueue, Arn]
       FilterPolicy:
         eventName:
-          - account.created
-          - account.updated
-CreditAnalyzerServiceUpdateCreditRequestsQueue:
-  Type: AWS::SQS::Queue
-  Properties:
-    QueueName: ${self:provider.stage}-credit-analyzer-update-credit-requests
-SNSSubForCreditAnalyzerServiceUpdateCreditRequestsQueue:
-  Type: AWS::SNS::Subscription
-  Properties:
-      TopicArn: { "Fn::Join" : ["", ["arn:aws:sns:${self:provider.region}:", { "Ref" : "AWS::AccountId" }, ":${self:resources.Resources.AccountSns.Properties.TopicName}" ] ] }
-      Protocol: sqs
-      Endpoint:
-        Fn::GetAtt: [CreditAnalyzerServiceUpdateCreditRequestsQueue, Arn]
-      FilterPolicy:
-        eventName:
-          - account.created
-          - account.updated
-
+          - account.created.v1
+          - account.updated.v1
+CreditAnalyzerServiceAccountsQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: "allow-accounts-sns-messages"
+            Effect: Allow
+            Principal: "*"
+            Resource: 
+              Fn::GetAtt: [CreditAnalyzerServiceAccountsQueue, Arn]
+            Action: "SQS:SendMessage"
+            Condition:
+              ArnEquals:
+                "aws:SourceArn": { "Fn::Join" : ["", ["arn:aws:sns:${self:provider.region}:", { "Ref" : "AWS::AccountId" }, ":${self:resources.Resources.AccountSns.Properties.TopicName}" ] ] }
+      Queues:
+        - Ref: CreditAnalyzerServiceAccountsQueue  

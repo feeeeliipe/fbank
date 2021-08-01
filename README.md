@@ -1,6 +1,6 @@
 ### FBank
 
-O objetivo do projeto é simular um sistema bancário que será composto por quatro microserviços, sendo eles: 
+O objetivo do projeto é simular um sistema bancário que será composto por três microserviços, sendo eles: 
 
 ### Account Service
 
@@ -13,10 +13,6 @@ Serviço responsável por gerir os lançamentos realizados (Depósitos, Débitos
 ### Credit Analizer Service
 
 Serviço responsável por analisar se o cliente tem saldo ou cŕedito suficiente para efetivar um lançamento.
-
-### Notification Service
-
-Serviço responsável por emitir notificações aos clientes do banco.
 
 ### Patterns que serão aplicados no projeto
 

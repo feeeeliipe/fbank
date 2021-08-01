@@ -1,3 +1,4 @@
+import { HttpResponses } from "../../../../lib/HttpResponses";
 import { Logger } from "../../../../lib/Logger";
 import { CreateAccountCommand } from "../commands/CreateAccountCommand";
 
@@ -9,20 +10,14 @@ export const handler = async (event: any) => {
         logger.info('Payload received', { eventName: 'ReceivedPayload', payload: createAccountParams });
         const command = new CreateAccountCommand();
         const result = await command.execute(createAccountParams);
-        return {
-            statusCode: 200,
-            body: JSON.stringify(result)
-        }    
+        return HttpResponses.success(result);
     } catch (error) {
         logger.error('Error creating account', { 
             eventName: 'CreateAccountApiError', 
             message: error.message, 
             stack: error.stack,
         });
-        return { 
-            statusCode: 500,
-            body: JSON.stringify({ message: 'Error creating account' })
-        }
+        return HttpResponses.internalError();
     }
 
 }
