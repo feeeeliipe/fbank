@@ -1,42 +1,25 @@
 export namespace EventDriveModel {
 
     export enum AccountEvents {
-        ACCOUNT_CREATED = 'account.created',
-        ACCOUNT_UPDATED = 'account.updated',
-        PASSWORD_VALIDATION_REQUESTED = 'password.validation.requested',
-        PASSWORD_VALIDATION_SUCCESS = 'password.validation.success',
-        PASSWORD_VALIDATION_ERROR = 'password.validation.error'
+        ACCOUNT_CREATED_V1 = 'account.created.v1',
+        ACCOUNT_UPDATED_V1 = 'account.updated.v1'
     }
 
-    export interface CreatedAccountEvent {
+    export interface AccountCreatedEvent {
         id: string;
         customerName: string;
         customerWage: number;
     }
 
-    export interface UpdatedAccountWage {
+    export interface AccountUpdatedWage {
         id: string;
         customerWage: number;
     }
 
-    export interface PasswordValidationRequested {
-        accountId: string;
-        password: string;
-    }
-
-    export interface PasswordValidationSuccess {
-        requestId: string;
-    }
-
-    export interface PasswordValidationError {
-        requestId: string;
-        error: string;
-    }
-
     export enum EntryEvents {
-        ENTRY_CREATED = 'entry.created',
-        ENTRY_APPROVED = 'entry.approved',
-        ENTRY_REPROVED = 'entry.reproved'
+        ENTRY_CREATED_V1 = 'entry.created.v1',
+        ENTRY_APPROVED_V1 = 'entry.approved.v1',
+        ENTRY_REPROVED_V1 = 'entry.reproved.v1'
     }
 
     export interface EntryCreated {
@@ -46,10 +29,5 @@ export namespace EventDriveModel {
         password: string;
     }
 
-    export enum AnalysisEvents {
-        CREDIT_ANALYSIS_REQUESTED = 'credit.analysis.requested',
-        CREDIT_RESERVED = 'credit.reserved',
-        CREDIT_UNAVAILABLE = 'credit.unavailable'
-    }
 
 }

@@ -30,6 +30,14 @@ provider:
             Fn::GetAtt: [AccountTable, Arn]
         - Effect: Allow
           Action:
+            - "dynamodb:Query"
+            - "dynamodb:GetItem"
+            - "dynamodb:PutItem"
+            - "dynamodb:UpdateItem"
+          Resource:
+            Fn::GetAtt: [CreditAnalyzerTable, Arn]
+        - Effect: Allow
+          Action:
             - "sns:Publish"
           Resource: { "Fn::Join" : ["", ["arn:aws:sns:${self:provider.region}:", { "Ref" : "AWS::AccountId" }, ":${self:provider.stage}-fbank-account" ] ]  }
 
@@ -63,20 +71,13 @@ functions:
           method: PUT
           path: accounts/{id}
   # Credit Analyzer Service Functions
-  saveAccountData:
-    handler: services/credit-analyzer-service/src/events/SaveAccountDataHandler.handler
+  accountSqsEventsHandler:
+    handler: services/credit-analyzer-service/src/events/SQSEventManager.handler
     events:
       - sqs:
           batchSize: 1
           arn:
             Fn::GetAtt: [CreditAnalyzerServiceAccountsQueue, Arn]
-  updateCustomerCredit:
-    handler: services/credit-analyzer-service/src/events/UpdateCustomerCreditHandler.handler
-    events:
-      - sqs:
-          batchSize: 1
-          arn:
-            Fn::GetAtt: [CreditAnalyzerServiceUpdateCreditRequestsQueue, Arn]
 
 resources:
   Resources:
