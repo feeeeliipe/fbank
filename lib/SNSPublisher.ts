@@ -20,7 +20,7 @@ export class SNSPublisher {
         this.sns = new SNS(config)
     }
 
-    async publish(topicArn: string, eventName: EventDriveModel.AccountEvents, event: object) {
+    async publish(topicArn: string, eventName: string, event: object) {
         await this.sns.publish({
             TopicArn: topicArn,
             MessageAttributes: {

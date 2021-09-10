@@ -17,6 +17,8 @@ provider:
     ACCOUNT_TABLE_NAME: ${self:provider.stage}-fbank-accounts
     STAGE: ${self:provider.stage}
     ACCOUNT_SNS: { "Fn::Join" : ["", ["arn:aws:sns:${self:provider.region}:", { "Ref" : "AWS::AccountId" }, ":${self:provider.stage}-fbank-account" ] ]  }
+    ENTRY_SNS: { "Fn::Join" : ["", ["arn:aws:sns:${self:provider.region}:", { "Ref" : "AWS::AccountId" }, ":${self:provider.stage}-fbank-entry" ] ]  }
+    CREDIT_ANALYSIS_SNS: { "Fn::Join" : ["", ["arn:aws:sns:${self:provider.region}:", { "Ref" : "AWS::AccountId" }, ":${self:provider.stage}-fbank-credit-analysis" ] ]  }
   iam:
     role:
       statements:
@@ -78,6 +80,28 @@ functions:
           batchSize: 1
           arn:
             Fn::GetAtt: [CreditAnalyzerServiceAccountsQueue, Arn]
+  creditAnalysisSqsEventsHandler:
+    handler: services/credit-analyzer-service/src/events/SQSEventManager.handler
+    events:
+      - sqs:
+          batchSize: 1
+          arn:
+            Fn::GetAtt: [CreditAnalyzerServiceCreditAnalysisQueue, Arn]
+  # Entry Service Functions
+  createEntryApi: 
+    handler: services/entry-service/src/presentation/EntryAPI.createEntry
+    events:
+      - http:
+          method: post
+          path: entries
+          cors: true
+  createdEntrySagaOrchestrator:
+    handler: services/entry-service/src/sagas/CreatedEntrySagaOrchestrator.handleSagaStep
+    events:
+      - sqs:
+          batchSize: 1
+          arn:
+            Fn::GetAtt: [CreatedEntrySagaQueue, Arn]
 
 resources:
   Resources:

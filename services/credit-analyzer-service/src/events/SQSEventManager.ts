@@ -13,14 +13,13 @@ class SQSEventManager {
 
     async handler(event: SQSEvent) {
         try {
-            this.logger.info('Event received', event);
             const messages = SQSEventParser.parse<any>(event);
             if (messages?.length) {
                 const message = messages[0];
                 const handler = SQSEventHandlerFactory.create(message.eventName);
                 await handler.handle(message.event);
             }
-        } catch (error) {
+        } catch (error: any) {
             this.logger.error('Error handling sqs event', {
                 eventName: 'ErrorHandlingSqsEvent',
                 message: error.message,

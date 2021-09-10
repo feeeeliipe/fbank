@@ -11,6 +11,12 @@ EntrySns:
     TopicName: ${self:provider.stage}-fbank-entry
     DisplayName: 'Entry Events'
     FifoTopic: false
+CreditAnalysisSns:
+  Type: AWS::SNS::Topic
+  Properties:
+    TopicName: ${self:provider.stage}-fbank-credit-analysis
+    DisplayName: 'Entry Events'
+    FifoTopic: false
 
 # Account Service Resources
 AccountTable:
@@ -80,4 +86,116 @@ CreditAnalyzerServiceAccountsQueuePolicy:
               ArnEquals:
                 "aws:SourceArn": { "Fn::Join" : ["", ["arn:aws:sns:${self:provider.region}:", { "Ref" : "AWS::AccountId" }, ":${self:resources.Resources.AccountSns.Properties.TopicName}" ] ] }
       Queues:
-        - Ref: CreditAnalyzerServiceAccountsQueue  
+        - Ref: CreditAnalyzerServiceAccountsQueue
+CreditAnalyzerServiceCreditAnalysisQueue:
+  Type: AWS::SQS::Queue
+  Properties:
+    QueueName: ${self:provider.stage}-credit-analyzer-analysis
+SNSSubForCreditAnalyzerServiceCreditAnalysisQueue:
+  Type: AWS::SNS::Subscription
+  Properties:
+      TopicArn: { "Fn::Join" : ["", ["arn:aws:sns:${self:provider.region}:", { "Ref" : "AWS::AccountId" }, ":${self:resources.Resources.CreditAnalysisSns.Properties.TopicName}" ] ] }
+      Protocol: sqs
+      Endpoint:
+        Fn::GetAtt: [CreditAnalyzerServiceCreditAnalysisQueue, Arn]
+      FilterPolicy:
+        eventName:
+          - reserve.customer.credit.command.v1
+CreditAnalyzerServiceCreditAnalysisQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: "allow-credit-analysis-sns-messages"
+            Effect: Allow
+            Principal: "*"
+            Resource: 
+              Fn::GetAtt: [CreditAnalyzerServiceCreditAnalysisQueue, Arn]
+            Action: "SQS:SendMessage"
+            Condition:
+              ArnEquals:
+                "aws:SourceArn": { "Fn::Join" : ["", ["arn:aws:sns:${self:provider.region}:", { "Ref" : "AWS::AccountId" }, ":${self:resources.Resources.CreditAnalysisSns.Properties.TopicName}" ] ] }
+      Queues:
+        - Ref: CreditAnalyzerServiceCreditAnalysisQueue
+
+
+
+
+# Entires Service Resources
+EntryTable:
+  Type: AWS::DynamoDB::Table
+  Properties:
+    TableName: ${self:provider.stage}-fbank-entries
+    ProvisionedThroughput:
+      ReadCapacityUnits: 1
+      WriteCapacityUnits: 1
+    AttributeDefinitions:
+      - AttributeName: pk
+        AttributeType: S
+      - AttributeName: sk
+        AttributeType: S
+    KeySchema:
+      - AttributeName: pk
+        KeyType: HASH
+      - AttributeName: sk
+        KeyType: RANGE
+CreatedEntrySagaQueue:
+  Type: AWS::SQS::Queue
+  Properties:
+    QueueName: ${self:provider.stage}-created-entry-saga
+SNSSubForCreatedEntrySagaQueue:
+  Type: AWS::SNS::Subscription
+  Properties:
+      TopicArn: { "Fn::Join" : ["", ["arn:aws:sns:${self:provider.region}:", { "Ref" : "AWS::AccountId" }, ":${self:resources.Resources.EntrySns.Properties.TopicName}" ] ] }
+      Protocol: sqs
+      Endpoint:
+        Fn::GetAtt: [CreatedEntrySagaQueue, Arn]
+      FilterPolicy:
+        eventName:
+          - entry.created.v1
+SNSSubForCreatedEntrySagaQueue2:
+  Type: AWS::SNS::Subscription
+  Properties:
+      TopicArn: { "Fn::Join" : ["", ["arn:aws:sns:${self:provider.region}:", { "Ref" : "AWS::AccountId" }, ":${self:resources.Resources.CreditAnalysisSns.Properties.TopicName}" ] ] }
+      Protocol: sqs
+      Endpoint:
+        Fn::GetAtt: [CreatedEntrySagaQueue, Arn]
+      FilterPolicy:
+        eventName:
+          - customer.credit.reserved.v1
+          - customer.credit.unavailable.v1
+CreatedEntrySagaQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: "allow-entry-sns-messages"
+            Effect: Allow
+            Principal: "*"
+            Resource: 
+              Fn::GetAtt: [CreatedEntrySagaQueue, Arn]
+            Action: "SQS:SendMessage"
+            Condition:
+              ArnEquals:
+                "aws:SourceArn": { "Fn::Join" : ["", ["arn:aws:sns:${self:provider.region}:", { "Ref" : "AWS::AccountId" }, ":${self:resources.Resources.EntrySns.Properties.TopicName}" ] ] }
+      Queues:
+        - Ref: CreatedEntrySagaQueue
+CreatedEntrySagaQueuePolicy2:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: "allow-credit-analysis-sns-messages"
+            Effect: Allow
+            Principal: "*"
+            Resource: 
+              Fn::GetAtt: [CreatedEntrySagaQueue, Arn]
+            Action: "SQS:SendMessage"
+            Condition:
+              ArnEquals:
+                "aws:SourceArn": { "Fn::Join" : ["", ["arn:aws:sns:${self:provider.region}:", { "Ref" : "AWS::AccountId" }, ":${self:resources.Resources.CreditAnalysisSns.Properties.TopicName}" ] ] }
+      Queues:
+        - Ref: CreatedEntrySagaQueue

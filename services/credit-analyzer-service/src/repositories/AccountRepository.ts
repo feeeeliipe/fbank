@@ -42,7 +42,6 @@ export class AccountRepository {
         for (const key of keys) {
             expressionAttributeValues[`:${key}`] = params[key];
         }
-        console.log(updateExpression, expressionAttributeValues);
         await this.dynamo.update({
             TableName: `${process.env.STAGE}-fbank-credit-analyzer`,
             Key: {
@@ -50,7 +49,7 @@ export class AccountRepository {
                 sk: 'ACCOUNT',
             },
             UpdateExpression: updateExpression,
-            ExpressionAttributeValues: expressionAttributeValues
+            ExpressionAttributeValues: expressionAttributeValues,
         }).promise();
     }
 

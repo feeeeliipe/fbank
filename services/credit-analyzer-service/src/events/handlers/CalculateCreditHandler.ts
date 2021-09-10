@@ -16,8 +16,9 @@ export class CalculateCreditHandler {
             this.logger.info('Calculating account credit');
             const account = await this.accountRepository.get(accountId);
             const totalCredit = account.customerWage * 0.30;
+            this.logger.info(`Account credit is ${totalCredit}`);
             await this.accountRepository.update(accountId, { totalCredit: totalCredit });
-        } catch (error) {
+        } catch (error: any) {
             this.logger.error('Error calculating account credit', {
                 eventName: 'ErroCalculatingAccountCredit',
                 message: error.message,
