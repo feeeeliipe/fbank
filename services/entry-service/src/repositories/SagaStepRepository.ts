@@ -2,32 +2,16 @@ import { DynamoConnector } from "../../../../lib/DynamoConnector";
 
 export class SagaStepRepository {
 
-    constructor(protected dynamo = new DynamoConnector().getInstance()) {
+    constructor() {
 
     }
 
-    async addStepStart(type: string, uniqueKey: string, payload: object) {
-        await this.dynamo.put({
-            TableName: `${process.env.STAGE}-fbank-entries`,
-            Item: {
-                pk: `sagaId#${type}#uniqueKey#${uniqueKey}`,
-                sk: `status#initialized`,
-                timestamp: new Date().getTime(),
-                payload
-            }
-        }).promise();
+    async addStepStart(type: string, payload: object) {
+        // SAVE THAT STEP WAS INITIALIZED
     }
 
-    async addStepFinish(type: string, uniqueKey: string, payload: object) {
-        await this.dynamo.put({
-            TableName: `${process.env.STAGE}-fbank-entries`,
-            Item: {
-                pk: `sagaId#${type}#uniqueKey#${uniqueKey}`,
-                sk: `status#finished`,
-                timestamp: new Date().getTime(),
-                payload
-            }
-        }).promise();
+    async addStepFinish(type: string, payload: object) {
+        // SAVE THAT STEP WAS FINISHED AND CURRENT STATE
     }
 
 }

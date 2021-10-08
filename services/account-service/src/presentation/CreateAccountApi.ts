@@ -3,7 +3,7 @@ import { Logger } from "../../../../lib/Logger";
 import { CreateAccountCommand } from "../commands/CreateAccountCommand";
 
 export const handler = async (event: any) => {  
-    const logger = new Logger('CreateAccountApi')
+    const logger = new Logger('AccountService', 'CreateAccountApi');
     try {
         logger.info('Creating new account');
         const createAccountParams = JSON.parse(event.body);

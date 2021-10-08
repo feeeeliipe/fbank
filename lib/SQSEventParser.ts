@@ -3,7 +3,7 @@ import { Logger } from "./Logger";
 
 export class SQSEventParser {
 
-    private static logger = new Logger('SQSEventParser');
+    private static logger = new Logger('Shared', 'SQSEventParser');
 
     static parse<T>(event: SQSEvent): { eventName: string, event: T }[] {
         try {

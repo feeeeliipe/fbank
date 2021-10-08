@@ -17,6 +17,12 @@ CreditAnalysisSns:
     TopicName: ${self:provider.stage}-fbank-credit-analysis
     DisplayName: 'Entry Events'
     FifoTopic: false
+NotificationSns:
+  Type: AWS::SNS::Topic
+  Properties:
+    TopicName: ${self:provider.stage}-fbank-notifications
+    DisplayName: 'Notifications Events'
+    FifoTopic: false
 
 # Account Service Resources
 AccountTable:
@@ -120,9 +126,7 @@ CreditAnalyzerServiceCreditAnalysisQueuePolicy:
         - Ref: CreditAnalyzerServiceCreditAnalysisQueue
 
 
-
-
-# Entires Service Resources
+# Entries Service Resources
 EntryTable:
   Type: AWS::DynamoDB::Table
   Properties:
@@ -165,6 +169,17 @@ SNSSubForCreatedEntrySagaQueue2:
         eventName:
           - customer.credit.reserved.v1
           - customer.credit.unavailable.v1
+SNSSubForCreatedEntrySagaQueue3:
+  Type: AWS::SNS::Subscription
+  Properties:
+      TopicArn: { "Fn::Join" : ["", ["arn:aws:sns:${self:provider.region}:", { "Ref" : "AWS::AccountId" }, ":${self:resources.Resources.NotificationSns.Properties.TopicName}" ] ] }
+      Protocol: sqs
+      Endpoint:
+        Fn::GetAtt: [CreatedEntrySagaQueue, Arn]
+      FilterPolicy:
+        eventName:
+          - notification.success.v1
+          - notification.error.v1
 CreatedEntrySagaQueuePolicy:
     Type: AWS::SQS::QueuePolicy
     Properties:
@@ -199,3 +214,54 @@ CreatedEntrySagaQueuePolicy2:
                 "aws:SourceArn": { "Fn::Join" : ["", ["arn:aws:sns:${self:provider.region}:", { "Ref" : "AWS::AccountId" }, ":${self:resources.Resources.CreditAnalysisSns.Properties.TopicName}" ] ] }
       Queues:
         - Ref: CreatedEntrySagaQueue
+CreatedEntrySagaQueuePolicy3:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: "allow-notification-sns-messages"
+            Effect: Allow
+            Principal: "*"
+            Resource: 
+              Fn::GetAtt: [CreatedEntrySagaQueue, Arn]
+            Action: "SQS:SendMessage"
+            Condition:
+              ArnEquals:
+                "aws:SourceArn": { "Fn::Join" : ["", ["arn:aws:sns:${self:provider.region}:", { "Ref" : "AWS::AccountId" }, ":${self:resources.Resources.NotificationSns.Properties.TopicName}" ] ] }
+      Queues:
+        - Ref: CreatedEntrySagaQueue
+
+
+# Notification Service Resources
+NotificationsQueue:
+  Type: AWS::SQS::Queue
+  Properties:
+    QueueName: ${self:provider.stage}-notifications
+SNSSubForNotificationsQueue:
+  Type: AWS::SNS::Subscription
+  Properties:
+      TopicArn: { "Fn::Join" : ["", ["arn:aws:sns:${self:provider.region}:", { "Ref" : "AWS::AccountId" }, ":${self:resources.Resources.NotificationSns.Properties.TopicName}" ] ] }
+      Protocol: sqs
+      Endpoint:
+        Fn::GetAtt: [NotificationsQueue, Arn]
+      FilterPolicy:
+        eventName:
+          - send.entry.notification.command.v1
+NotificationQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: "allow-notification-sns-messages"
+            Effect: Allow
+            Principal: "*"
+            Resource: 
+              Fn::GetAtt: [NotificationsQueue, Arn]
+            Action: "SQS:SendMessage"
+            Condition:
+              ArnEquals:
+                "aws:SourceArn": { "Fn::Join" : ["", ["arn:aws:sns:${self:provider.region}:", { "Ref" : "AWS::AccountId" }, ":${self:resources.Resources.NotificationSns.Properties.TopicName}" ] ] }
+      Queues:
+        - Ref: NotificationsQueue

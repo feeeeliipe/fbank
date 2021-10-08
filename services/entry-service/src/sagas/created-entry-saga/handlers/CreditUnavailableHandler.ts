@@ -1,20 +1,16 @@
-import { EventDriveModel } from "../../../../../lib/EventDriveModel";
-import { Logger } from "../../../../../lib/Logger";
-import { SNSPublisher } from "../../../../../lib/SNSPublisher";
-import { EntryRepository } from "../../repositories/EntryRepository";
+import { EventDriveModel } from "../../../../../../lib/EventDriveModel";
+import { Logger } from "../../../../../../lib/Logger";
+import { SNSPublisher } from "../../../../../../lib/SNSPublisher";
+import { EntryRepository } from "../../../repositories/EntryRepository";
 import { ISagaEventHandler } from "../CreatedEntryHandlerFactory";
 
 export class CreditUnavailableHandler implements ISagaEventHandler {
 
     constructor(
-        protected logger = new Logger('CreditUnavailableHandler'),
+        protected logger = new Logger('EntryService', 'CreditUnavailableHandler'),
         protected snsPublisher = new SNSPublisher(),
         protected entryRepo = new EntryRepository()) {
 
-    }
-
-    getUniqueKey(event: EventDriveModel.CustomerCreditUnavailable): string {
-        return `${event.accountId}-${event.entryId}`;
     }
 
     async handle(event: EventDriveModel.EntryCreated): Promise<void> {

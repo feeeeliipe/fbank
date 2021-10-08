@@ -67,4 +67,28 @@ export namespace EventDriveModel {
         message: string;
     }
 
+    export enum NotificationEvents {
+        SEND_ENTRY_NOTIFICATION_COMMAND_V1 = 'send.entry.notification.command.v1',
+        NOTIFICATION_SUCCESS_V1 = 'notification.success.v1',
+        NOTIFICATION_ERROR_V1 = 'notification.error.v1'
+    }
+
+    export interface SendNotificationCommand {
+        entryId: string;
+        amount: number;
+        type: 'SMS' | 'WAB' | 'EMAIL';
+        destination: string;
+        message: string;
+    }
+
+    export interface NotificationSuccess {
+        entryId: string;
+        notificationId: string;
+    }
+
+    export interface NotificationError {
+        entryId: string;
+        error: string;
+    }
+
 }

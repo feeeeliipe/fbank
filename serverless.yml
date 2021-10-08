@@ -19,6 +19,7 @@ provider:
     ACCOUNT_SNS: { "Fn::Join" : ["", ["arn:aws:sns:${self:provider.region}:", { "Ref" : "AWS::AccountId" }, ":${self:provider.stage}-fbank-account" ] ]  }
     ENTRY_SNS: { "Fn::Join" : ["", ["arn:aws:sns:${self:provider.region}:", { "Ref" : "AWS::AccountId" }, ":${self:provider.stage}-fbank-entry" ] ]  }
     CREDIT_ANALYSIS_SNS: { "Fn::Join" : ["", ["arn:aws:sns:${self:provider.region}:", { "Ref" : "AWS::AccountId" }, ":${self:provider.stage}-fbank-credit-analysis" ] ]  }
+    NOTIFICATION_SNS: { "Fn::Join" : ["", ["arn:aws:sns:${self:provider.region}:", { "Ref" : "AWS::AccountId" }, ":${self:provider.stage}-fbank-notifications" ] ]  }
   iam:
     role:
       statements:
@@ -96,12 +97,20 @@ functions:
           path: entries
           cors: true
   createdEntrySagaOrchestrator:
-    handler: services/entry-service/src/sagas/CreatedEntrySagaOrchestrator.handleSagaStep
+    handler: services/entry-service/src/sagas/created-entry-saga/CreatedEntrySagaOrchestrator.handleSagaStep
     events:
       - sqs:
           batchSize: 1
           arn:
             Fn::GetAtt: [CreatedEntrySagaQueue, Arn]
+  # Notification Service Functions
+  notificationEventsHandler:
+    handler: services/notification-service/src/events/SQSEventManager.handler
+    events:
+      - sqs:
+          batchSize: 1
+          arn:
+            Fn::GetAtt: [NotificationsQueue, Arn]
 
 resources:
   Resources:

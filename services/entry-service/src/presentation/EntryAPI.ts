@@ -5,7 +5,7 @@ import { CreateEntryCommand, CreateEntryCommandInput } from "../commands/CreateE
 
 class EntryAPI {
 
-    private logger = new Logger('EntryAPI');
+    private logger = new Logger('EntryService', 'EntryAPI');
 
     constructor() {
 

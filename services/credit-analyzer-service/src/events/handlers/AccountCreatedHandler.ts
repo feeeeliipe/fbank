@@ -6,7 +6,7 @@ import { CalculateCreditHandler } from "./CalculateCreditHandler";
 
 export class AccountCreatedHandler {
 
-    private logger = new Logger('AccountCreatedHandler');
+    private logger = new Logger('CreditAnalyzerService', 'AccountCreatedHandler');
 
     constructor(
         protected accountRepository = new AccountRepository(), 

@@ -15,7 +15,7 @@ export interface CreateEntryCommandInput {
 export class CreateEntryCommand {
 
     constructor(
-        protected logger = new Logger('CreateEntryCommand'),
+        protected logger = new Logger('EntryService', 'CreateEntryCommand'),
         protected entryRepo = new EntryRepository(),
         protected snsPublisher: SNSPublisher = new SNSPublisher()
     ) {

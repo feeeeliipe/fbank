@@ -1,6 +1,6 @@
 ### FBank
 
-O objetivo do projeto é simular um sistema bancário que será composto por três microserviços, sendo eles: 
+O objetivo do projeto é simular um sistema bancário que será composto por quatro microserviços, sendo eles: 
 
 ### Account Service
 
@@ -17,8 +17,8 @@ Serviço responsável por analisar se o cliente tem saldo ou cŕedito suficiente
 ### Patterns que serão aplicados no projeto
 
  - Database per service (https://microservices.io/patterns/data/database-per-service.html)
+ - EDA
  - Saga (https://microservices.io/patterns/data/saga.html)
- - CQRS (https://microservices.io/patterns/data/cqrs.html)
 
 ### Arquitetura Macro
 
@@ -34,11 +34,13 @@ Serviço responsável por analisar se o cliente tem saldo ou cŕedito suficiente
 2. Faça o deploy do projeto no localstack através do comando: `sls deploy --stage local`
 
 
-### APIs
+# REST APIs
 
-#### Account Service
+## Account Service
 
-##### POST /accounts
+`POST /accounts`
+
+Request
 ```json
 {
     "customerName": "Felipe",
@@ -47,15 +49,84 @@ Serviço responsável por analisar se o cliente tem saldo ou cŕedito suficiente
 }
 ```
 
-##### PUT /accounts/{id}
+Response
+```json
+{
+    "id": "77d60c70-f109-4078-8a89-49dc9c345443",
+    "customerName": "Felipe",
+    "customerWage": 1200
+}
+```
+
+`PUT /accounts/{id}`
+
+Request
 ```json
 {
     "customerWage": 600
 }
 ```
 
+Response
+```json
+{
+    "id": "77d60c70-f109-4078-8a89-49dc9c345443",
+    "customerName": "Felipe",
+    "customerWage": 600
+}
+```
+
+## Entry Service
+
+`POST /entry`
+
+Regras negociais:
+1. Requests com valor menor que 100 reais serão aprovados pelo analizador de credito, valores maiores serão sempre reprovados
+2. Requests com valor menor que 50 reais não terão a notificação processada com sucesso, valores maiores serão processados com sucesso
+
+Request
+```json
+{
+    "accountId": "77d60c70-f109-4078-8a89-49dc9c345443",
+    "amount": 200,
+    "password": "123",
+    "type": "CREDIT"
+}
+```
+
+Response
+```json
+{
+    "id":"778d9023-1ac6-4f7b-b383-1070c5122e48",
+    "accountId":"77d60c70-f109-4078-8a89-49dc9c345443",
+    "amount":200,
+    "type":"CREDIT",
+    "status":"PENDING"
+}
+```
 
 
+`GET /entry/{id}`
+TODO: Return current entry status
 
 
+# Async APIs
 
+## Credit Analyzer Service
+
+Pub:
+ - reserve.customer.credit.command.v1
+
+Sub:
+ - customer.credit.reserved.v1
+ - customer.credit.unavailable.v1
+
+
+## Notification Service
+
+Pub: 
+ - send.notification.v1
+
+Sub:
+ - notification.sended.v1
+ - notification.error.v1
