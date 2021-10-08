@@ -14,6 +14,10 @@ Serviço responsável por gerir os lançamentos realizados (Depósitos, Débitos
 
 Serviço responsável por analisar se o cliente tem saldo ou cŕedito suficiente para efetivar um lançamento.
 
+### Notification Service
+
+Serviço responsável por emitir notificações para os cliente sobre lançamentos
+
 ### Patterns que serão aplicados no projeto
 
  - Database per service (https://microservices.io/patterns/data/database-per-service.html)
